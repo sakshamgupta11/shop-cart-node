@@ -1,46 +1,81 @@
-/* .form-control {
-  margin: 1rem 0;
-}
-
-.form-control label,
-.form-control input,
-.form-control textarea {
-  display: block;
-  width: 100%;
-  margin-bottom: 0.25rem;
-}
-
-.form-control input,
-.form-control textarea {
-  border: 1px solid #a1a1a1;
-  font: inherit;
-  border-radius: 2px;
-}
-
-.form-control input:focus,
-.form-control textarea:focus {
-  outline-color: #00695c;
-} */
 .form-control {
-  margin: 1rem 0;
+  margin: 1rem 0 1.25rem;
 }
 
-.form-control label,
+.form-control label {
+  display: inline-block;
+  width: 100%;
+  margin-bottom: 0.5rem;
+  color: #111827;
+  font-size: 0.95rem;
+  font-weight: 600;
+  line-height: 1.4;
+}
+
 .form-control input,
-.form-control textarea {
+.form-control textarea,
+.form-control select {
   display: block;
   width: 100%;
-  margin-bottom: 0.25rem;
+  margin: 0;
+  padding: 0.8rem 0.95rem;
+  border: 1px solid #cfd8d5;
+  border-radius: 0.85rem;
+  background: #ffffff;
+  color: #111827;
+  font: inherit;
+  font-size: 1rem;
+  line-height: 1.5;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease, background-color 0.2s ease;
 }
 
-.form-control input,
-.form-control textarea {
-  border: 1px solid #a1a1a1;
-  font: inherit;
-  border-radius: 2px;
+.form-control input::placeholder,
+.form-control textarea::placeholder {
+  color: #9ca3af;
+}
+
+.form-control input:hover,
+.form-control textarea:hover,
+.form-control select:hover {
+  border-color: #aebbb7;
 }
 
 .form-control input:focus,
-.form-control textarea:focus {
-  outline-color: #00695c;
+.form-control textarea:focus,
+.form-control select:focus {
+  outline: none;
+  border-color: #01696f;
+  box-shadow: 0 0 0 4px rgba(1, 105, 111, 0.14);
+  background: #fcffff;
+}
+
+.form-control textarea {
+  min-height: 7rem;
+  resize: vertical;
+}
+
+.form-control input:disabled,
+.form-control textarea:disabled,
+.form-control select:disabled {
+  background: #f3f4f6;
+  color: #9ca3af;
+  cursor: not-allowed;
+}
+
+.form-control--invalid label {
+  color: #b91c1c;
+}
+
+.form-control--invalid input,
+.form-control--invalid textarea,
+.form-control--invalid select {
+  border-color: #dc2626;
+  background: #fef2f2;
+}
+
+.form-control--invalid input:focus,
+.form-control--invalid textarea:focus,
+.form-control--invalid select:focus {
+  border-color: #dc2626;
+  box-shadow: 0 0 0 4px rgba(220, 38, 38, 0.12);
 }
