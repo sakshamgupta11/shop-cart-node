@@ -1,0 +1,53 @@
+<%- include('../includes/head.ejs') %>
+<link rel="stylesheet" href="/css/orders.css">
+</head>
+
+<body>
+  <%- include('../includes/navigation.ejs') %>
+
+  <main>
+    <% if (orders.length <= 0) { %>
+      <h1>Nothing there!</h1>
+    <% } else { %>
+      <ul class="orders">
+        <% orders.forEach(order => { %>
+          <li class="orders__item">
+            <h1>Order - # <%= order._id %></h1>
+
+            <ul class="orders__products">
+              <% order.products.forEach(item => { %>
+                <li class="orders__products-item">
+                  <strong><%= item.product.title %></strong>
+                </li>
+                <li class="orders__products-item">
+                  Quantity: <%= item.quantity %>
+                </li>
+                <li class="orders__products-item">
+                  Price: <%= item.product.price %>
+                </li>
+                <li class="orders__products-item">
+                  Item Total: <%= item.itemTotal %>
+                </li>
+            
+              <% }); %>
+            </ul>
+
+            <h2>Total Price: <%= order.orderTotal %></h2>
+<a href="/orders/<%= order._id %>" class="btn">Download Invoice</a>
+            <p>
+              ordered At:
+              <%= new Date(order.updatedAt).toLocaleString('en-IN', {
+                timeZone: 'Asia/Kolkata',
+                dateStyle: 'medium',
+                timeStyle: 'short'
+              }) %>
+            </p>
+           
+          </li>
+        <% }); %>
+      </ul>
+    <% } %>
+  </main>
+
+  <%- include('../includes/end.ejs') %>
+</body>
