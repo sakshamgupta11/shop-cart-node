@@ -115,7 +115,7 @@ exports.postEditProduct = (req, res, next) => {
     if (image) {
       unlinkFile(product.imageUrl)
       product.imageUrl = image.path;
-      
+
     }
     product.description = updatedDesc;
     return product.save();
@@ -134,26 +134,26 @@ exports.postEditProduct = (req, res, next) => {
 };
 
 exports.getProducts = (req, res, next) => {
-      const page = +req.query.page || 1
-    let totalItems;
-  
-    Product.find()
-      .countDocuments().then(numProducts => {
-        totalItems = numProducts;
-        return Product.find().skip((page - 1) * ITEMS_PER_PAGE)
-          .limit(ITEMS_PER_PAGE)
-      })
+  const page = +req.query.page || 1
+  let totalItems;
+
+  Product.find()
+    .countDocuments().then(numProducts => {
+      totalItems = numProducts;
+      return Product.find().skip((page - 1) * ITEMS_PER_PAGE)
+        .limit(ITEMS_PER_PAGE)
+    })
     .then(products => {
       res.render('admin/products', {
         prods: products,
         pageTitle: 'Admin Products',
         path: '/admin/products',
-            currentPage:page,
-        hasNextPage:ITEMS_PER_PAGE * page < totalItems,
-        hasPreviousPage: page>1,
-        nextPage: page+1,
-        previousPage :page -1,
-        lastPage: Math.ceil(totalItems/ITEMS_PER_PAGE)
+        currentPage: page,
+        hasNextPage: ITEMS_PER_PAGE * page < totalItems,
+        hasPreviousPage: page > 1,
+        nextPage: page + 1,
+        previousPage: page - 1,
+        lastPage: Math.ceil(totalItems / ITEMS_PER_PAGE)
       });
     })
     .catch(err => {
@@ -164,9 +164,8 @@ exports.getProducts = (req, res, next) => {
     });
 
 };
-exports.postDeleteProduct = (req, res, next) => {
-  const prodId = req.body.productId;
-
+exports.deleteProduct = (req, res, next) => {
+  const prodId = req.params.productId;
   if (!prodId) {
     console.log('Delete failed: productId missing');
     return res.redirect('/admin/products');
@@ -187,15 +186,12 @@ exports.postDeleteProduct = (req, res, next) => {
           return res.redirect('/admin/products');
         }
 
-        res.redirect('/admin/products');
+        res.status(200).json({ msg: "success" })
 
         unlinkFile(imagePath)
       });
     })
     .catch(err => {
-      console.log('something went wrong in deleting product..');
-      console.log(err);
-      err.httpStatusCode = 500;
-      return next(err);
+      res.status(500).json({ msg: "spmething went wrong in deleteing product" })
     });
-};
+};   

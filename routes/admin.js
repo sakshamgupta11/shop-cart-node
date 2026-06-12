@@ -24,6 +24,6 @@ router.post('/edit-product', [body("title").isString().isLength({ min: 4, max: 1
 body("description").isString().isLength({ min: 10, max: 200 }).withMessage("please Enter title mini length 10 and max:200")
 ], authMiddleWare, adminAuth, adminController.postEditProduct);
 
-router.post('/delete-product', authMiddleWare, adminAuth, adminController.postDeleteProduct);
+router.delete('/delete-product/:productId', authMiddleWare, adminAuth, adminController.deleteProduct);
 
 module.exports = router;

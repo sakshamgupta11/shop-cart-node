@@ -15,7 +15,7 @@ dotenv.config()
 const MONGODB_URI = process.env.URL
 const store = new mongoDbStore({
   uri: MONGODB_URI,
-  collection: "sessions"
+  collection: "sessions"                                                                                                                                                                              
 });
 const bodyParser = require('body-parser');
 
