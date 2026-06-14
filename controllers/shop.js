@@ -4,11 +4,15 @@ const fs = require("fs");
 const path = require("path");
 const PDFDocument = require("pdfkit");
 const product = require('../models/product');
+const session = require('express-session');
+const dotenv = require("dotenv");
+dotenv.config()
+const stripe = require('stripe')(process.env.private_key);
 
 const ITEMS_PER_PAGE = 3;
 
 exports.getProducts = (req, res, next) => {
-    const page = +req.query.page || 1
+  const page = +req.query.page || 1
   let totalItems;
 
   Product.find()
@@ -22,12 +26,12 @@ exports.getProducts = (req, res, next) => {
         prods: products,
         pageTitle: 'All Products',
         path: '/products',
-            currentPage:page,
-        hasNextPage:ITEMS_PER_PAGE * page < totalItems,
-        hasPreviousPage: page>1,
-        nextPage: page+1,
-        previousPage :page -1,
-        lastPage: Math.ceil(totalItems/ITEMS_PER_PAGE)
+        currentPage: page,
+        hasNextPage: ITEMS_PER_PAGE * page < totalItems,
+        hasPreviousPage: page > 1,
+        nextPage: page + 1,
+        previousPage: page - 1,
+        lastPage: Math.ceil(totalItems / ITEMS_PER_PAGE)
       });
     })
     .catch(err => {
@@ -67,12 +71,12 @@ exports.getIndex = (req, res, next) => {
         prods: products,
         pageTitle: 'Shop',
         path: '/',
-        currentPage:page,
-        hasNextPage:ITEMS_PER_PAGE * page < totalItems,
-        hasPreviousPage: page>1,
-        nextPage: page+1,
-        previousPage :page -1,
-        lastPage: Math.ceil(totalItems/ITEMS_PER_PAGE)
+        currentPage: page,
+        hasNextPage: ITEMS_PER_PAGE * page < totalItems,
+        hasPreviousPage: page > 1,
+        nextPage: page + 1,
+        previousPage: page - 1,
+        lastPage: Math.ceil(totalItems / ITEMS_PER_PAGE)
       });
     })
     .catch(err => {
@@ -91,6 +95,52 @@ exports.getCart = (req, res, next) => {
     })
     .catch(err => console.log(err));
 }
+
+exports.getCheckOut = (req, res, next) => {
+  let products;
+  let total = 0;
+const Publishable_key = process.env.Publishable_key
+  req.user.getCart()
+    .then(prod => {
+      products = prod;
+
+      prod.forEach(p => {
+        total += p.quantity * p.productData.price;
+      });
+
+      return stripe.checkout.sessions.create({
+        payment_method_types: ['card'],
+        mode: 'payment',
+        line_items: prod.map(p => {
+          return {
+            price_data: {
+              currency: 'inr',
+              product_data: {
+                name: p.productData.title,
+                description: p.productData.description
+              },
+              unit_amount: p.productData.price * 100
+            },
+            quantity: p.quantity
+          };
+        }),
+        success_url: 'http://localhost:3000/checkout/success',
+        cancel_url: 'http://localhost:3000/checkout/cancel'
+      });
+      
+    })
+    .then(session => {
+      res.render('shop/checkout', {
+        path: '/checkout',
+        pageTitle: 'checkout',
+        products: products,
+        totalSum: total,
+        sessionId: session.id,
+        Publishable_key: Publishable_key
+      });
+    })
+    .catch(err => console.log(err));
+};
 
 exports.postCart = (req, res, next) => {
   const prodId = req.body.productId;
@@ -136,12 +186,8 @@ exports.postCart = (req, res, next) => {
 
 exports.postCartDeleteProduct = (req, res, next) => {
   const prodId = req.body.productId;
-  console.log(prodId);
-
   req.user.deleteCartByCount(prodId)
     .then(result => {
-      console.log(result);
-
       res.redirect('/cart');
     })
     .catch(err => console.log(err));
@@ -149,8 +195,6 @@ exports.postCartDeleteProduct = (req, res, next) => {
 
 exports.postCartAddProduct = (req, res, next) => {
   const prodId = req.body.productId;
-  console.log(prodId);
-
   req.user.AddCartQuantity(prodId).then(result => {
     res.redirect("/cart");
   })
@@ -257,8 +301,6 @@ exports.getInvoice = (req, res, next) => {
     )
     let totalPrice = 0;
     order.products.forEach(prod => {
-      console.log(prod);
-
       totalPrice += prod.quantity * prod.product.price;
       pdfDoc.fontSize(12).text(
         ` ${prod.product.title} - ${prod.quantity} x $ ${prod.product.price} `, {
